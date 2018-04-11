@@ -57,3 +57,5 @@ Yii 框架的措施包括了输入验证、输出过滤、SQL注入和跨站脚�
 
 # Yii2.0 安装(Basic 应用模板)
 ## composer 安装
+https://pkg.phpcomposer.com/#how-to-install-composer
+
