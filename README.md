@@ -59,3 +59,30 @@ Yii 框架的措施包括了输入验证、输出过滤、SQL注入和跨站脚�
 ## composer 安装
 https://pkg.phpcomposer.com/#how-to-install-composer
 
+## Apache 配置信息
+- http.conf
+<Directory "E:\lingyima\development\www\basic\web">  
+    Options Indexes FollowSymLinks Includes ExecCGI  
+    AllowOverride All  
+    Require all granted  
+</Directory>
+
+- http-vhosts.conf
+<VirtualHost *:80>
+	DocumentRoot "E:\lingyima\development\www\basic\web"
+	ServerName local.yii.com
+	<Directory "E:\lingyima\development\www\basic\web">
+		# 开启 mod_rewrite 用于美化 URL 功能的支持（译注：对应 pretty URL 选项）
+		RewriteEngine on
+		# 如果请求的是真实存在的文件或目录，直接访问
+		RewriteCond %{REQUEST_FILENAME} !-f
+		RewriteCond %{REQUEST_FILENAME} !-d
+		# 如果请求的不是真实文件或目录，分发请求至 index.php
+		RewriteRule . index.php
+
+		# if $showScriptName is false in UrlManager, do not allow accessing URLs with script name
+		RewriteRule ^index.php/ - [L,R=404]
+
+	</Directory>
+</VirtualHost>
+
