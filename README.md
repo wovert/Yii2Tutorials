@@ -86,3 +86,69 @@ https://pkg.phpcomposer.com/#how-to-install-composer
 	</Directory>
 </VirtualHost>
 
+# 设置布局
+- 在控制器动作当中设置当前页面布局
+	+ 取消布局:$this->layout = false;
+	+ 设置布局: $this->layout = 'index';
+		* 在views/layouts/index.php 布局文件 
+
+# ActiveQueryInterface 常用方法
+## 执行查询,并返回AR对象
+- all() 
+- one() 
+
+## 查询条件
+- where()
+- orWhere()
+- andWhere()
+
+### where 参数写法 SQL 语句
+- and ['and', 'id=1', 'id=2'] id=1 AND id=2
+- or ['or', 'id=1','id=2'] id=1 OR id=2
+- in ['in', 'id', [1,2,3]] in(1,2,3)
+- between ['between', 'id', 1, 10] id between 1 and 10
+- like ['like', 'name', ['test','sample']] name like '%test%' and name like '%sample%'
+- 比较 ['>=', 'id', 10] id >=10
+
+
+## 排序
+- orderBy()
+- addOrderBy()
+
+## 返回符合查询条件的记录数
+- count()
+
+## 取出查询结果的条数
+- limit()
+
+## 指定关联表的字段
+- with()
+
+## 访问列数据
+$model = Post::findOne(1);
+$model->id;
+$model->title;
+
+
+## CRUD
+- $model->insert()
+- $model->update()
+- $model->delete()
+- $model->save() (update/insert)
+
+### create
+- $model = new User();
+- $model->name = "aaa";
+- $model->save() 或 $model->insert()
+
+### Read
+- $model = Customer::findOne($id);
+
+### Update
+- $model = User::findOne($id);
+- $model->name = "adm";
+- $model->save() 或 $model->update()
+
+### Delete
+- $model = Customer::findOne($id);
+- $model->delete();
