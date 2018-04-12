@@ -152,3 +152,26 @@ $model->title;
 ### Delete
 - $model = Customer::findOne($id);
 - $model->delete();
+
+## DetailView
+
+### 面包屑设置
+- view.php  模版文件
+`$this->params['breadcrumbs'][] = ['label' => '文章管理', 'url' => ['index']];
+$this->params['breadcrumbs'][] = $this->title;`
+- Home 改为中文
+	+ main.php 文件中添加 return ['language' => 'zh-CN']
+
+## 查询关联数据
+`public function getStatus0(){
+	return $this->hasOne(Poststatus::className(), ['id'=>'status']);
+}
+public function getComments(){
+	return $this->hasMany(Comment::className(), ['post_id'=>'id']);
+}`
+- $thePost->status0-name
+- $thePost->comments
+
+- DetailView 显示中文
+	+ `['label' => '状态', 'value'=>$model->status0->name]`
+	+ `['attribute'=>'author_id', 'value'=>$model->author->nickname]`
