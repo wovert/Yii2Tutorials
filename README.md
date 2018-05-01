@@ -834,6 +834,20 @@ $sql = 'select id,name from poststatus';
 $psObj = Yii::$app->db->createCommand($sql)->queryAll();
 $allStatus = ArrayHelper::map($psObjs, 'id','name');
 
+// 4. 方法4
+$allStatus = (new \yii\db\Query())
+	->select(['name','id'])
+	->from('poststatus')
+	->indexBy('id')
+	->column();
+
+// 5. 方法5
+$allStatus = Poststatus::find()
+	->select(['name','id'])
+	->orderBy('position')
+	->indexBy('id')
+	->column(),
+
 ```
 
 ## [ArrayHelper](https://www.yiiframework.com/doc/api/2.0/yii-helpers-arrayhelper) 助手类
@@ -914,3 +928,154 @@ ArrayHelper::isIn('a', new(ArrayObject['a']));
 ArrayHelper::isSubset(new(ArrayObject(['a','c'])));
 new(ArrayObject(['a','b','c']))
 ```
+
+# 查询构建器 QueryBuild
+
+## 1. What QueryBuilder
+建在在 DAO 基础上，可以创建程序化的、DBMS无关的SQL语句，并且创建的SQL语句，比原生的SQL语句更易读、更安全
+
+## 2. Use QueryBuild
+1. 构建查询。创建一个Yii\db\Query 对象来代码一条 select sql 语句，然后通过调用一套可以串起来的方法，比如 select 方法，from 方法，where 方法等这些方法，构建出可以满足一定要求得查询条件。
+
+2. 执行查询。执行 yii\db\Query 的一个查询方法从数据库当中检索数据。例如：all(),one(),column() 等这些查询方法。
+
+```
+$row = (new \yii\db\Query())
+->select(['id','email'])
+->from('user')
+->where(['last_name' => 'Smith'])
+->orderBy(id)
+->limit(10)
+->indexBy(id)
+->all()
+```
+
+### select() 方法
+使用字符串或一个数字来指定需要查询的字段
+- $query->select('id, email');
+- $query->select(['id, email']);
+- $query->select('user.id AS user_id, email');
+- $query->select("[CONCAT(first_name, ' ', last_name) AS full_name", 'email']);
+
+### 子查询
+```
+select id, (select count(*) from user) as count from post
+$subQuery = (new Query())->select('count(*)')->from('user');
+$query = (new Query())->select(['id', 'count' => $subQuery])->from('post');
+```
+
+### 可以调用 yii\db\query:addSelect() 方法来选取附加字段
+```
+$query->select(['id','username'])->addSelect(['email]);
+```
+
+### 没有调用 select()方法，那么选择的将是'*'
+
+
+### from() 方法
+- from() 方法指定 SQL 语句当中的 fromr 子句
+```
+$query->from('user')
+```
+
+- from() 中的表明可包含数据库前缀，以及表别名
+```
+$query->from(['public.user u', 'public.post p']);
+$query->from('public.user u', 'public.post p');
+```
+
+- 子查询
+```
+$subQuery = (new Query())->select('id')->from('user')->where('status'=>1);
+$query->from(['u'=>$subQuery]);
+```
+
+
+### where()方法
+- 字符串格式：'status=1'
+- 键值对数组格式：['status'=>1, 'type'=>2]
+- 操作符格式：['like','name','test']
+```
+$query->where('status=:status')->addParams([':status'=>$status])
+```
+
+### orderBy() 方法
+```
+$query->orderBy([
+	'id' => SORT_DESC,
+	'name' => SORT_DESC
+]);
+```
+- 字符串来声明，写法像原生的 SQL 语句
+```
+$Quqery->orderBy('id ASC, name DESC');
+```
+
+### limit() 和 offset() 方法
+`$query->limit(10)->offset(20)`
+
+### indexBy() 方法
+使用关联数组的键值作为索引值
+
+
+
+### groupBy() 和 having()
+```
+$query->groupBy(['id', 'status']);
+$query->groupBy(['id','status'])
+	->addGroupBy('age');
+```
+
+### having()
+```
+$query->having(['status'=>1]);
+
+// having (status=1) and (age > 30)
+$query->having(['status'=>1])->addHaving(['>', 'age', 30]);
+```
+
+### join() 和 union()
+```
+// left join post on post.user_id = user.id
+$query->join('LEFT JOIN', 'post', 'post.user_id=user.id');
+
+
+$query->join($type, $table, $on);
+$type: INNER JOIN | LEFT JOIN | RIGHT JOIN
+$table: 将要连接的表名称
+$on: 连接条件
+$params: 与连接条件绑定的参数
+```
+
+- union()
+```
+$q1 = (new \yii\db\Query())
+	->select('id, category_id as type, name')
+	->from('post')
+	->limit(10);
+$q2 = (new \yii\db\Query())
+	->select('id, type, name')
+	->from('user')
+	->limit(10);
+$q1->union($q2);
+```
+
+## 执行查询
+- all() 返回一个由行组成的数组，每一行是一个名称和值构成的关联数组
+- one() 返回结果集的第一行
+- column() 返回结果集的第一列
+- scalar() 返回结果集的第一行第一列的标量值
+- exists() 返回一个表示该查询是否包含结果集的值
+- count() 返回 count 查询的结果
+- sum() 返回指定列的和
+- average() 返回指定列的平均值
+- max() 返回指定列的最大值
+- min() 返回指定列的最小值
+
+
+# 数据库查询总结
+- 查询方式						|		构建查询		| 	返回值(all,one方法)
+- Command对象					| SQL 语句		| 	数组
+- AR的findBySQL方法		| SQL 语句 		| 	对象
+- Query 对象			| 查询构造器			| 	数组
+- AR的find 方法		| 查询构造器			| 	对象
