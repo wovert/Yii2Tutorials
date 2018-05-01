@@ -373,3 +373,140 @@ HTML 帮助类提供了很多静态方法，这些方法可以根据参数不同
 
 
 ![Yii2应用静态](./images/yii2-structure.png)
+
+
+# 创建博客
+
+1. 导入数据库文件
+2. 控制台执行：`php init` 选择 development 
+3. common/config/main-local.php 配置数据库
+```
+'dsn' => 'mysql:host=localhost;dbname=blog',
+'username' => 'root',
+'password' => '',
+```
+4. 控制台执行：`php yii migrate` 生成用户表和迁移表
+5. 分别配置前段和后端
+- 配置虚拟主机
+```
+<VirtualHost *:80>
+    Servername user.blog.com
+    DocumentRoot "C:\development\Yii2Tutorials\blog\frontend\web"
+
+    <Directory "C:\development\Yii2Tutorials\blog\frontend\web">
+        Options Indexes FollowSymLinks Includes ExecCGI  
+        AllowOverride All  
+        Require all granted  
+
+       # use mod_rewrite for pretty URL support  
+       RewriteEngine on  
+
+       # If a directory or a file exists, use the request directly  
+       RewriteCond %{REQUEST_FILENAME} !-f  
+       RewriteCond %{REQUEST_FILENAME} !-d  
+
+       # Otherwise forward the request to index.php  
+       RewriteRule . index.php  
+  
+       # use index.php as index file  
+       DirectoryIndex index.php  
+  
+   </Directory>  
+</VirtualHost>
+<VirtualHost *:80>
+    Servername admin.blog.com
+    DocumentRoot "C:\development\Yii2Tutorials\blog\backend\web"
+
+    <Directory "C:\development\Yii2Tutorials\blog\backend\web">
+        Options Indexes FollowSymLinks Includes ExecCGI  
+        AllowOverride All  
+        Require all granted  
+
+       # use mod_rewrite for pretty URL support  
+       RewriteEngine on  
+
+       # If a directory or a file exists, use the request directly  
+       RewriteCond %{REQUEST_FILENAME} !-f  
+       RewriteCond %{REQUEST_FILENAME} !-d  
+
+       # Otherwise forward the request to index.php  
+       RewriteRule . index.php  
+  
+       # use index.php as index file  
+       DirectoryIndex index.php  
+  
+   </Directory>  
+</VirtualHost>
+```
+- 配置本地域名 : `127.0.0.1 user.blog.com admin.blog.com`
+
+## Advanced 模板的目录结构
+- common 前后台公用的模型文件
+- console 控制台入口用来控制台执行的程序，比如放一些定时执行的程序，或者需要在底层的操作系统上运行的功能
+- environments 环境配置文件
+- frontend/backend 前后台入口，相当于单独的 Basic 应用，有自己额mvc目录，配置文件目录，入口文件的目录
+	+ assets 资源文件目录
+	+ web 入口文件目录
+	+ config 配置文件目录
+	+ models 
+	+ controllers
+	+ views
+	+ runtime 
+
+## Advanced VS Basic
+- Advance 版本的增强
+	+ 前后台分离
+	+ 建好了给予数据库连接的用户模型，并实现了对这个用户模型的认证
+	+ 写好了注册，重置密码等功能
+
+- Advanced 相当与含2个 Basic
+	+ Advanced 模板具有 Basic 模板的所有功能
+	+ 可以当 Advanced 版应用里面有2个 basic 版应用，分别是前台和后台。并且它们之间可以有联系
+
+## Advanced 模板中的别名
+1. 别名
+别名用来表示文件路径和 URL，目的是避免了代码中硬编码一些绝对路径和URL。一个别名必须以 @ 字符开头。
+
+
+2. 别名的设置
+用 Yii::setAlias() 方法来设置。例如： @app/common/config/bootstrap.php
+
+```
+// 文件路径的别名
+Yii::setAlias('@foo', '/path/to/foo')
+
+// URL 的别名
+Yii::setAlias('@bar', 'http://www.wovert'.com')
+
+Yii::setAlias('@common', dirname(__DIR__));
+Yii::setAlias('@frontend', dirname(dirname(__DIR__)) . '/frontend');
+Yii::setAlias('@backend', dirname(dirname(__DIR__)) . '/backend');
+Yii::setAlias('@console', dirname(dirname(__DIR__)) . '/console');
+```
+
+3. 别名的使用 @app/common/config/main-local.php
+`'viewPath' => '@common/mail'`
+```
+$cache = new FileCache([
+	'cachePath' => '@runtime/cache'
+])
+```
+
+4. Advanced 模板中已预定义的别名
+- @yii : framework directory
+- @app : base path of currently running application.
+- @common : common directory
+- @frontend : frontend web application directory.
+- @backend : backend web application directory.
+- @console : console directory
+- @runtime : runtime directory of currently running web application.
+- @vendor : Composer vendor directory.
+- @web : base URL of currently running web application.
+- @webroot : web root directory of currently running web application.
+
+![Advanced 配置文件](./images/advanced-config.png)
+
+![blog 需求](./images/blog-plan.png)
+
+![blog 数据表关系](./images/blog-db-relation.png)
+
