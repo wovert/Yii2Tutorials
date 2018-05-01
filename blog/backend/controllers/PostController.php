@@ -52,9 +52,27 @@ class PostController extends Controller
      */
     public function actionView($id)
     {
-        $posts = Yii::$app->db->createCommand('select * from post where id=:id and status=:status')->bindValue(':id', $_GET['id'])->bindValue(':status', 2)->queryAll();
+        // $posts = Yii::$app->db->createCommand('select * from post where id=:id and status=:status')->bindValue(':id', $_GET['id'])->bindValue(':status', 2)->queryAll();
+        // var_dump($posts);
+        // exit;
+        // $model = Post::find()->where(['id'=>32])->one();
+        // var_dump($model);
+        // $model = Post::find()->where(['status'=>2])->all();
+        // $posts = Post::find()
+        //     ->where([
+        //             'and', 
+        //             ['status' => 2],
+        //             ['author_id' => 1],
+        //             ['like', 'title', 'yii2']
+        //         ])
+        //     ->orderBy('id')
+        //     ->all();
+       
+        $sql = 'select * from post';
+        $posts = Post::findBySql($sql)->all();
         var_dump($posts);
         exit;
+        
 
         return $this->render('view', [
             'model' => $this->findModel($id),

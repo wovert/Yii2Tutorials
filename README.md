@@ -612,5 +612,119 @@ $posts = Yii::$app->db->createCommand('select * from post where id=:id and statu
 - 在 DAO 的基础上，更为增强和常用的数据库访问方法
 
 
+# ActiveRecord
+> 活动记录，简称 AR 类提供了一套面向对象接口，用以访问数据库中的数据。
+- 一个 AR 类关联一张数据表，每个 AR 对象对应表的一行
+- AR 对象的属性，对应为数据的列
+- 可以直接以面向对象的方式操作数据库的数据，不需要写 SQL 语句就能实现数据库的访问
 
 
+## 1. 声明 ActiveRecord 类
+> 通过继承 [yii\db\ActiveRecord](https://www.yiiframework.com/doc/api/2.0/yii-db-activerecord) 基类来声明一个 AR 类，并实现 tableName 方法，返回与之相关联的数据库的名称
+```
+class Post extends \yii\db\ActiveRecord {
+	public static function tableName() {
+		return 'post';
+	}
+}
+```
+
+## 2. 查询数据
+> AR 提供了两种方法来构建 DB 查询，**返回 AR 对象**
+
+### yii\db\ActiveRecord::find()
+```
+// 只查询一条数据
+$model = Post::find()->where(['id'=>32])->one();
+
+// findOne 是 find()->one() 的快捷方式
+$model = Post::findOne(1); // 主关键字 id值为 1
+
+// 查询多条数据
+$models = Post::find()->where(['status'=>2])->all();
+$model = Post::findAlll(['status'=>2]);
+```
+
+- [ActiveQueryInterface](https://www.yiiframework.com/doc/api/2.0/yii-db-activequeryinterface) 常用方法
+	+ all() 执行查询，并返回 AR 对象
+	+ one() 执行查询，并返回 AR 对象
+	+ where() 查询条件
+	+ orWhere()
+	+ andWhere()
+	+ orderBy(), addOrderBy() 排序
+	+ count() 返回符合查询条件中的记录数
+	+ limit() 取出查询结果的条数
+	+ with() 指定关联表的字段
+
+- where 参数写法 | SQL 语句
+	+ ['and', 'id=1','id=2'] | id=1 and id=2
+	+ ['or', 'id=1','id=2'] | id=1 or id=2
+	+ ['in', 'id', [1,2,3]] | in (1,2,3)
+	+ ['between', 'id', 1, 10] | id between 1 and 10
+	+ ['like', 'name', ['test',sample']] | name like '%test%' and name like '%sample%'
+	+ ['>=', 'id', 10] | id >=10
+```
+$posts = Post::find()
+	->where([
+			'and', 
+			['status' => 2],
+			['author_id' => 1],
+			['like', 'title', 'yii2']
+		])
+	->orderBy('id')
+	->all();
+```
+
+### yii\db\ActiveRecord::findBySql()
+```
+$sql = 'select * from post where status=1';
+$posts = Post::findBySql($sql)->all();
+```
+**注意 findBySQL 返回的对象**
+
+## 3. 访问列数据
+AR 对象的属性，对应为数据行的列
+```
+$model = Post::findOne(1);
+echo $model->id;
+echo $model->title;
+
+$models = Post::findAll(['status'=>1]);
+foreach($models as $model) {
+	echo $model->id;
+	echo $model->title;
+}
+```
+
+## 4. 操作数据 CRUD
+- 插入：yii\db\ActiveRecord::insert()
+- 删除：yii\db\ActiveRecord::delete()
+- 更新：yii\db\ActiveRecord::update()
+- 插入/更新：yii\db\ActiveRecord::save()
+
+
+### Create
+```
+$customer = new Customer();
+$customer->name = 'James';
+$customer->email = 'james@qq.com';
+$customer->save(); // 等同于 $customer->insert();
+```
+
+### Read
+```
+$customer = Customer::findOne($id);
+```
+
+### Update
+```
+$customer = Customer::findOne($id);
+$customer->email = 'new@qq.com';
+$customer->save();
+```
+
+### Delete
+```
+$customer = Customer::findOne($id);
+$customer->delete();
+```
