@@ -567,4 +567,50 @@ $menuItems = [
 ```
 
 
+# Yii 如何使用数据库
+1. Yii 如何使用数据库
+Yii 通过数据库访问对象（Database Access Objects, 简称 DAO）来使用数据库。DAO 建立在 "PHP 数据对象（PDO）"之上，并提供一套面向对象的 API 来访问数据库。
+
+2. 数据库的连接
+- 数据库的连接通常放到配置文件中
+- 创建一个 yii\db\Connection 对象，并用这个对象来访问数据库
+- 这个数据库连接对象的写法：Yii::$app->db
+
+连接不同的数据库，主要是修改 dsn 这个键的值
+
+### 连接不同的数据库
+- MySQL/MariaDB: mysql:host=localhost;dbname=dbname
+- SQLite: sqlite:/path/to/database/file
+- PostgreSQL: pgsql:host=localhost;port=5432;dbname=dbname
+- CUBRID: cubrid:dbname=demodb;host=localhost;port=33000
+- MS SQL Server(via sqlsrv driver): sqlsrv:Server=localhost;Database=dbname
+- MS SQL Server(via dblib driver): dblib:host=localhost;dbname=mydb
+- MS SQL Server(via mssql drier): mssql:host=localhost;dbname=mydb
+- Oracle: oci:dbname://localhost:1521/mydb
+
+
+3. 数据库查询[yii\db\Command](https://www.yiiframework.com/doc/api/2.0/yii-db-command)
+用 SQL 查询语句来创建一个 yii\db\Command 的对象，调用对象的方法来执行 SQL 查询，返回值是字符型的数组。
+```
+$posts = Yii::$app->db->createCommand('select * from post')->queryAll();
+$post = Yii::$app->db->createCommand('select * from post')->queryOne();
+
+$posts = Yii::$app->db->createCommand('select * from post where id=:id and status=:status')->bindValue(':id', $_GET['id'])->bindValue(':status', 2)->queryAll();
+```
+
+- 优点：
+	+ 简单，只需要处理 SQL 语句和数组即可
+	+ 高效，通过SQL语句来查询数据库非常高效
+
+- 缺点：
+	+ 不同数据库系统的SQL语句会有些差别，因此无法做到代码适用于多种数据库系统
+	+ 用数组，而没有用到面向对象的方式来管理数据，代码难维护
+	+ 如果不小心，会留下 SQL 注入
+
+
+5. ActiveRecord 和 QueryBuilder 
+- 在 DAO 的基础上，更为增强和常用的数据库访问方法
+
+
+
 
