@@ -6,9 +6,9 @@ use yii\helpers\Html;
 /* @var $model common\models\Adminuser */
 
 $this->title = '更新管理员: {nameAttribute}';
-$this->params['breadcrumbs'][] = ['label' => 'Adminusers', 'url' => ['index']];
+$this->params['breadcrumbs'][] = ['label' => '管理员', 'url' => ['index']];
 $this->params['breadcrumbs'][] = ['label' => $model->id, 'url' => ['view', 'id' => $model->id]];
-$this->params['breadcrumbs'][] = 'Update';
+$this->params['breadcrumbs'][] = '修改';
 ?>
 <div class="adminuser-update">
 

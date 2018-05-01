@@ -1079,3 +1079,60 @@ $q1->union($q2);
 - AR的findBySQL方法		| SQL 语句 		| 	对象
 - Query 对象			| 查询构造器			| 	数组
 - AR的find 方法		| 查询构造器			| 	对象
+
+# 文章修改时间
+```
+// 1. 方法1- 在控制器中赋值数据
+public function actionUpdate($id) {
+	$model->update_time = time();
+}
+
+// 2. 方法2 - 在模型类中
+public function beforeSave($insert) {
+	if(parent::beforeSave($insert)) {
+		if ($insert) {
+			$this->create_time = time();
+			$this->update_time = time();
+		} else {		
+			$this->update_time = time();
+		}
+		return true;
+	} 
+	return false;
+}
+```
+
+## ActiveRecord 的生命周期
+- 方法						声明周期						事件
+- new()
+	+ 1. constructor
+	+ 2. init()			EVENT_INIT
+- find()
+	+ 1. constructor
+	+ 2. init()			EVENT_INIT
+	+ 3. afterFind()		EVENT_AFTERF_FIND
+- save()
+	+ 1. beforeValidate() 			EVENT_BEFORE_VALIDATE
+		* beforeValidate 方法在数据验证之前执行，如果这个执行后的返回值为 false, 后面的步骤就不会执行
+		* 可以重写方法，注入代码
+	+ 2. 执行数据验证，如果不能通过验证，第三步后面的步骤会被略过
+	+ 3. afterValidate()				EVENT_AFTER_VALIDATE
+	+ 4. beforeSave()						EVENT_BEFORE_INSERT or EVENT_BEFORE_UPDATE
+	+ 5. 执行数据插入或修改		
+	+ 6. afterSave()						EVENT_AFTER_INSERT or EVENT_AFTER_UPDATE
+- delete()
+	+ 1. beforeDelete()		EVENT_BEFORE_DELETE
+	+ 2. 执行数据删除 		
+	+ 3. afterDelete()		EVENT_AFTER_DELETE
+- refresh() (Since 2.0.8)
+	+ 1. afterRefresh()		EVENT_AFTER_REFERSH
+
+
+
+
+# 设置时区
+```
+'charset' => 'utf-8',
+'language' => 'zh-CN',
+'timeZone' => 'Asia/Shanghai',
+```

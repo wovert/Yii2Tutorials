@@ -7,7 +7,7 @@ use yii\helpers\Html;
 /* @var $model common\models\Adminuser */
 
 $this->title = '新增管理员';
-$this->params['breadcrumbs'][] = ['label' => 'Adminusers', 'url' => ['index']];
+$this->params['breadcrumbs'][] = ['label' => '管理员', 'url' => ['index']];
 $this->params['breadcrumbs'][] = $this->title;
 ?>
 <div class="adminuser-create">

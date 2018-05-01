@@ -7,7 +7,7 @@ use yii\helpers\Html;
 /* @var $model common\models\Comment */
 
 $this->title = '新增评论';
-$this->params['breadcrumbs'][] = ['label' => 'Comments', 'url' => ['index']];
+$this->params['breadcrumbs'][] = ['label' => '评论管理', 'url' => ['index']];
 $this->params['breadcrumbs'][] = $this->title;
 ?>
 <div class="comment-create">
