@@ -510,3 +510,61 @@ $cache = new FileCache([
 
 ![blog 数据表关系](./images/blog-db-relation.png)
 
+
+# gii 创建博客原型
+## 什么是 gii
+> gii 是基于 web 的代码生成器，可以用来生成模型，控制器，表单，增删查改等等这些类或功能的代码
+
+## 如何使用 gii
+1. backend/common/config/main-local.php 启用 gii 模块
+```
+if (!YII_ENV_TEST) {
+	// configuration adjustments for 'dev' environment
+	$config['bootstrap'][] = 'debug';
+	$config['modules']['debug'] = [
+		'class' => 'yii\debug\Module',
+	];
+
+	$config['bootstrap'][] = 'gii';
+	$config['modules']['gii'] = [
+		'class' => 'yii\gii\Module',
+	];
+}
+```
+
+2. 打开 gii 也买，url?r=gii
+
+## 用 gii 创建博客系统原型
+
+1. 创建模型类 - Model Generator
+- Table Name: post
+- Model class: Post
+- Namespace: common\models
+
+2. 创建 CRUD 页面 - CRUD Generator
+- Model Class: common\models\Post
+- Search Model Class: common\models\PostSearch
+- Controller Class: backend\controllers\PostController
+- View path: @app/views/post
+
+- 访问页面：`admin.blog.com/?r=post/index`
+
+3. 修改管理平台菜单 @app/backend/views/layouts/main.php
+```
+NavBar::begin([
+	'brandLabel' => 'Blog',
+	'brandUrl' => Yii::$app->homeUrl,
+	'options' => [
+		'class' => 'navbar-inverse navbar-fixed-top'
+	]
+]);
+$menuItems = [
+	[label' => '文章管理', 'url' => ['/post/index']],
+	[label' => '评论管理', 'url' => ['/comment/index']],
+	[label' => '用户管理', 'url' => ['/user/index']],
+	[label' => '管理员', 'url' => ['/adminuser/index']],
+];
+```
+
+
+
