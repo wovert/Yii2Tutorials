@@ -83,6 +83,8 @@ class Post extends \yii\db\ActiveRecord
      */
     public function getStatus0()
     {
+        // Poststatus::className() 文件状态表名
+        // 关联条件：Post status 字段对应 PostStatus 的id 字段
         return $this->hasOne(Poststatus::className(), ['id' => 'status']);
     }
 }

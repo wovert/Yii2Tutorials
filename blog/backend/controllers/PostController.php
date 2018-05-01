@@ -68,10 +68,10 @@ class PostController extends Controller
         //     ->orderBy('id')
         //     ->all();
        
-        $sql = 'select * from post';
-        $posts = Post::findBySql($sql)->all();
-        var_dump($posts);
-        exit;
+        // $sql = 'select * from post';
+        // $posts = Post::findBySql($sql)->all();
+        // var_dump($posts);
+        // exit;
         
 
         return $this->render('view', [

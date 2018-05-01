@@ -728,3 +728,189 @@ $customer->save();
 $customer = Customer::findOne($id);
 $customer->delete();
 ```
+
+# 小部件
+
+## 1. 数据小部件
+> 提供了一套数据小部件 widgets, 这些小部件可以用于显示数据
+
+- DetailView 小部件用于显示一条记录数据
+- ListView 和 GridView 小部件能够用于显示一个拥有分页、排序和过滤功能的一个列表或者表格
+
+## 2. [DetailView](https://www.yiiframework.com/doc/api/2.0/yii-widgets-detailview)
+> 用来显示一条记录的详情
+- 一个 Model 模型类对象的数据
+- ActiveRecord 类的一个实例对象
+- 由键值对构成的一个关联数组
+
+## 3. DetailView 的创建
+- 调用 DetailView::widget 方法
+- model 可以是一个模型类的实例，也可以是一个数组
+- atrributes 属性决定显示模型的那些属性以及如何格式化显示
+
+1. 面包屑修改 Home => 首页
+- @app/config/main-local.php
+```
+$config = [
+	'language'=>'zh-CN',
+]
+```
+
+2. 修改外联数据 - @app/controllers/PostController.php
+```
+public function getComments()
+{
+	return $this->hasMany(Comment::className(), ['post_id' => 'id']);
+}
+/**
+ * 
+ * 建立文章类和文章状态类关系 
+ */
+public function getStatus0()
+{
+	// Poststatus::className() 文件状态表名
+	// 关联条件：Post status 字段对应 PostStatus 的id 字段
+	return $this->hasOne(Poststatus::className(), ['id' => 'status']);
+}
+```
+
+```
+$thePost = Post::findOne($id);
+echo $thePost>status0->name;
+print_r($thePost->comments);
+```
+
+- hasOne 用于 N 对1，1对1
+- hasMany 用于 1 对 N
+
+- gii 会根据数据表之间的关联关系，自动生成建立类之间的关系的代码
+
+- DetailView 修改
+```
+<?= DetailView::widget([
+	'model' => $model,
+	'attributes' => [
+		'id',
+		'title',
+		'content:ntext',
+		'tags:ntext',
+		[
+			'label' => '状态',
+			'value' => $model->status0->name
+		],
+		[
+			'attribute' => 'create_time',
+			'value' => date('Y-m-d H:i:s', $model->create_time)
+		],
+		[
+			'attribute' => 'update_time',
+			'value' => date('Y-m-d H:i:s', $model->update_time)
+		],
+		[
+			'attribute' => 'author_id',
+			'value' => $model->author->nickname
+		]
+	],
+	// 记录行模板格式
+  'template' => '<tr><th style="width:120px">{label}</th><td>{value}</td></tr>'
+]) ?>
+```
+
+# dropDownList()
+```
+// 1. 方法1
+<?= $form->field($model, 'status')->dropDownList([
+	1 => '草稿',
+	2 => '已发布'
+], ['prompt' => '请选择状态']) ?>
+
+// 2. 方法2：调用文章状态类
+$psObjs = Poststatus::find()->all();
+$allStatus = ArrayHelper::map($psObjs, 'id','name');
+<?= $form->field($model, 'status')->dropDownList($allStatus, ['prompt' => '请选择状态']) ?>
+
+// 3. 方法3：
+$sql = 'select id,name from poststatus';
+$psObj = Yii::$app->db->createCommand($sql)->queryAll();
+$allStatus = ArrayHelper::map($psObjs, 'id','name');
+
+```
+
+## [ArrayHelper](https://www.yiiframework.com/doc/api/2.0/yii-helpers-arrayhelper) 助手类
+> 提供静态方法
+
+- 获取值 (getValue)
+```
+class User {
+	public $name = 'Alex';
+}
+$array = [
+	'foo' => new User()
+];
+$value = isset($array['foo']['bar']->name)?$array['foo']['bar']->name : null;
+
+// ArrayHelper
+$value = ArrayHelper::getValue($array.'foo.bar.name');
+```
+- 获取列(getColumn)
+多维数组或者对象数组中获取某列的值
+```
+$data = [
+	['id' => '123', 'data' => 'abc'],
+	['id' => '345', 'data' => 'def']
+];
+$ids = ArrayHelper::getColumn($data, 'id'); // ['123','345']
+```
+- 建立应声表(map)
+```
+$array = [
+	['id'=>'123', 'name'=>'aaa','class'=>'x'],
+	['id'=>'124', 'name'=>'bbb','class'=>'x'],
+	['id'=>'315', 'name'=>'ccc','class'=>'z'],
+];
+$result = ArrayHelper::map($array, 'id','name'); ['123'=>'aaa',...]
+```
+
+- 检查键名的存在 keyExists
+```
+if (!ArrayHelper::keyExists('username', $data1, false)
+```
+- 重建数组索引 index
+```
+$result = ArrayHelper::index($array, 'id');
+```
+- 多维排序 multisort
+```
+ArrayHelper::multisort($data, ['age', 'name'], [
+	SORT_ASC, SORT_DESC
+]);
+```
+
+- 检测数组类型 isIndexed
+```
+echo ArrayHelper::isIndexed($indexed);
+```
+
+- HTML 编码和解码值
+```
+$encoded = ArrayHelper::htmlEncode($data);
+$encoded = ArrayHelper::htmlDecode($data);
+```
+
+- 合并数组 merge
+```
+$result = ArrayHelper::merge($a1, $a2);
+```
+
+- 对象转换为数组
+```
+$data = ArrayHelper::toArray($posts, [...]);
+```
+
+- 数组检测
+```
+ArrayHelper::isIn('a', ['a']);
+ArrayHelper::isIn('a', new(ArrayObject['a']));
+ArrayHelper::isSubset(new(ArrayObject(['a','c'])));
+new(ArrayObject(['a','b','c']))
+```
